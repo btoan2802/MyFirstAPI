@@ -3,6 +3,7 @@ using MyFirstAPI.Data;
 using MyFirstAPI.DTOs;
 using Microsoft.EntityFrameworkCore;
 using MyFirstAPI.Models;
+using MyFirstAPI.Services;
 
 namespace MyFirstAPI.Controllers
 {
@@ -11,9 +12,11 @@ namespace MyFirstAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public UserController(AppDbContext context)
+        private readonly TokenService _tokenService;
+        public UserController(AppDbContext context, TokenService tokenService)
         {
             _context = context;
+            _tokenService = tokenService;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -43,7 +46,16 @@ namespace MyFirstAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            return Ok();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            {
+                return Unauthorized("Sai tên đăng nhập hoặc mật khẩu");
+            }
+
+            var token = _tokenService.CreateToken(user);
+
+            return Ok(new { token, user.Username, user.Role });
         }
     }
 }
