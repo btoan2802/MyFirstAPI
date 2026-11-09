@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using MyFirstAPI.Data;
 using MyFirstAPI.DTOs;
 using MyFirstAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyFirstApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class OrderController : ControllerBase

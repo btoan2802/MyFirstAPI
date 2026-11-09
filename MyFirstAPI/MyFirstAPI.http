@@ -1,6 +1,33 @@
-@MyFirstAPI_HostAddress = http://localhost:5107
+@host = https://localhost:7241
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@customerToken = PASTE_CUSTOMER_TOKEN_HERE
+### 1. Đặt hàng KHÔNG có token → mong đợi 401
+POST {{host}}/api/Order
+Content-Type: application/json
 
-GET {{MyFirstAPI_HostAddress}}/weatherforecast/
-Accept: application/json
+{
+  "customerName": "Test",
+  "phone": "0901234567",
+  "address": "HCM",
+  "items": [{ "productId": 6, "quantity": 1 }]
+}
 
-###
+### 2. Đặt hàng CÓ token customer → mong đợi 200
+POST {{host}}/api/Order
+Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+
+{
+  "customerName": "Test",
+  "phone": "0901234567",
+  "address": "HCM",
+  "items": [{ "productId": 6, "quantity": 1 }]
+}
+
+### 3. Customer xóa sản phẩm → mong đợi 403
+DELETE {{host}}/api/Product/999999
+Authorization: Bearer {{customerToken}}
+
+### 4. Admin xóa sản phẩm không tồn tại → mong đợi 404
+DELETE {{host}}/api/Product/999999
+Authorization: Bearer {{adminToken}}
