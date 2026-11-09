@@ -8,4 +8,11 @@ public class AppDbContext : DbContext
         public DbSet<User> Users { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+    }
 }
