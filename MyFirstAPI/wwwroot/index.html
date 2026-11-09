@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý sản phẩm</title>
+</head>
+<body>
+    <h1>Quản lý sản phẩm</h1>
+
+    <h2>Danh sách sản phẩm</h2>
+    <ul id="product-list"></ul>
+
+    <h2>Thêm sản phẩm</h2>
+    <form id="create-form">
+        <input type="text" id="name" placeholder="Tên sản phẩm" required />
+        <input type="text" id="description" placeholder="Mô tả" />
+        <input type="number" id="price" placeholder="Giá" required />
+        <input type="number" id="stock" placeholder="Số lượng" required />
+        <button type="submit">Thêm</button>
+    </form>
+    <script src="app.js"></script>
+</body>
+</html>
