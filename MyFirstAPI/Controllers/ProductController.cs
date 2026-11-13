@@ -88,6 +88,13 @@ namespace MyFirstApi.Controllers
                 return NotFound($"Không tìm thấy sản phẩm có id = {id}");
             }
 
+            // Sản phẩm đã nằm trong đơn hàng thì không được xoá, nếu không lịch sử đơn sẽ mất
+            var hasOrders = await _context.OrderItems.AnyAsync(i => i.ProductId == id);
+            if (hasOrders)
+            {
+                return Conflict("Sản phẩm đã có trong đơn hàng nên không thể xoá");
+            }
+
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
