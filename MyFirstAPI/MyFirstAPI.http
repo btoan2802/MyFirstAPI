@@ -12,7 +12,6 @@ Content-Type: application/json
   "items": [{ "productId": 6, "quantity": 1 }]
 }
 
-### 2. Đặt hàng CÓ token customer → mong đợi 200
 POST {{host}}/api/Order
 Content-Type: application/json
 Authorization: Bearer {{customerToken}}

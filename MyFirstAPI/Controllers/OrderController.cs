@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyFirstAPI.Data;
 using MyFirstAPI.DTOs;
 using MyFirstAPI.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MyFirstApi.Controllers;
 
@@ -19,6 +20,12 @@ public class OrderController : ControllerBase
         _context = context;
     }
 
+    // Lấy id người dùng từ TOKEN (claim NameIdentifier do TokenService tạo ra)
+    private int GetCurrentUserId()
+    {
+        return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderDto dto)
     {
@@ -32,7 +39,8 @@ public class OrderController : ControllerBase
         {
             CustomerName = dto.CustomerName,
             Phone = dto.Phone,
-            Address = dto.Address
+            Address = dto.Address,
+            UserId = GetCurrentUserId()
         };
 
         // 2. Kiểm tra từng món, trừ kho, lấy giá từ DATABASE
@@ -65,5 +73,34 @@ public class OrderController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { orderId = order.Id, totalPrice = order.TotalPrice });
+    }
+
+    // GET api/Order/my  -> đơn hàng của CHÍNH người đang đăng nhập
+    [HttpGet("my")]
+    public async Task<ActionResult<List<OrderSummaryDto>>> GetMyOrders()
+    {
+        var userId = GetCurrentUserId();
+
+        var orders = await _context.Orders
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedAt)
+            .Select(o => new OrderSummaryDto
+            {
+                Id = o.Id,
+                CreatedAt = o.CreatedAt,
+                TotalPrice = o.TotalPrice,
+                CustomerName = o.CustomerName,
+                Address = o.Address,
+                Items = o.Items.Select(i => new OrderLineDto
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.Product.Name,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice
+                }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(orders);
     }
 }
