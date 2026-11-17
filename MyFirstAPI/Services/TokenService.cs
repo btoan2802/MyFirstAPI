@@ -24,7 +24,8 @@ namespace MyFirstAPI.Services
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            string jwtKey = _config["Jwt:Key"] ?? "MyFirstApi_DevelopmentSecretKey_AtLeast32BytesLong!";
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
             var descriptor = new SecurityTokenDescriptor
             {
